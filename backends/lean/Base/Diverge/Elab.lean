@@ -2,6 +2,7 @@ import Lean
 import Lean.Meta.Tactic.Simp
 import Init.Data.List.Basic
 import Mathlib.Tactic.RunCmd
+import Mathlib.Tactic.Eqns
 import Base.Diverge.Base
 import Base.Diverge.ElabBase
 
@@ -843,6 +844,7 @@ partial def proveUnfoldingThms (isValidThm : Expr) (inOutTys : Array (Expr × Ex
       all := [name]
     }
     addDecl decl
+    eqnsAttribute.add preDef.declName #[name]
     trace[Diverge.def.unfold] "proveUnfoldingThms: added thm: {name}:\n{thmTy}"
   let rec prove (i : Nat) : MetaM Unit := do
     if i = preDefs.size then pure ()
@@ -1108,6 +1110,9 @@ namespace Tests
     divergent def is_odd (i : Int) : Result Bool :=
       if i = 0 then return false else return (← is_even (i - 1))
   end
+
+  example : is_odd 0 = return false := by
+    simp [is_odd]
 
   #check is_even.unfold
   #check is_odd.unfold
