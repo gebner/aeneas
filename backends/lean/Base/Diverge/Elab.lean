@@ -1013,6 +1013,7 @@ def Term.elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM U
     withFunLocalDecls headers fun funFVars => do
       for view in views, funFVar in funFVars do
         addLocalVarInfo view.declId funFVar
+        addTermInfo' view.declId funFVar -- add fake use site to prevent unused variable error
       let values ←
         try
           let values ← elabFunValues headers
