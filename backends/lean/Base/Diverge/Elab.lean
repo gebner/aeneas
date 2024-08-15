@@ -1488,8 +1488,6 @@ where
             unless (← processDefDeriving className header.declName) do
               throwError "failed to synthesize instance '{className}' for '{header.declName}'"
 
-#check Command.elabMutualDef
-
 -- Copy/pasted from Lean.Elab.MutualDef
 open Command in
 open Language in
@@ -1505,7 +1503,7 @@ def Command.elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       let modifiers ← elabModifiers d[0]
       if ds.size > 1 && modifiers.isNonrec then
         throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
-      let mut view ← mkDefView modifiers d[1]
+      let mut view := mkDefViewOfDef modifiers d[2]
       let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
       if let some snap := snap? then
         view := { view with headerSnap? := some {
@@ -1537,7 +1535,7 @@ def Command.elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     runTermElabM fun vars => Term.elabMutualDef vars includedVars views
 
 syntax (name := divergentDef)
-  declModifiers "divergent" "def" declId ppIndent(optDeclSig) declVal : command
+  declModifiers "divergent" Lean.Parser.Command.definition : command
 
 -- Special command so that we don't fall back to the built-in mutual when we produce an error.
 local syntax "_divergent" Parser.Command.mutual : command
